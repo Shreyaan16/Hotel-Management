@@ -1,17 +1,5 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+pandas
+scikit-learn
+azure-storage-blob
+python-dotenv
 -e .
