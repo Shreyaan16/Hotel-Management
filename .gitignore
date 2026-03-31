@@ -1,0 +1,4 @@
+data/
+artifacts/
+hotel_reservation.egg-info/
+.env
