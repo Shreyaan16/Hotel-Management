@@ -2,4 +2,12 @@ pandas
 scikit-learn
 azure-storage-blob
 python-dotenv
+ipykernel
+ipywidgets
+numpy
+matplotlib
+seaborn
+imbalanced-learn
+xgboost 
+lightgbm
 -e .
