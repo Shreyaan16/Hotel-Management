@@ -35,18 +35,15 @@ pipeline{
 
         stage('Build Docker Image'){
             steps{
-                withCredentials([
-                    string(credentialsId: 'azure-container-name', variable: 'AZURE_CONTAINER_NAME'),
-                    string(credentialsId: 'azure-blob-name', variable: 'AZURE_BLOB_NAME'),
-                    string(credentialsId: 'azure-storage-connection-string', variable: 'AZURE_STORAGE_CONNECTION_STRING')
-                ]){
+                withCredentials([file(credentialsId: 'a4364067-96de-486c-94d5-8a7df9536e42', variable: 'ENV_FILE')]){
                     script{
                         echo 'Building Docker image'
                         sh """
+                            export \$(grep -v '^#' ${ENV_FILE} | xargs)
                             docker build \
-                              --build-arg AZURE_CONTAINER_NAME=${AZURE_CONTAINER_NAME} \
-                              --build-arg AZURE_BLOB_NAME=${AZURE_BLOB_NAME} \
-                              --build-arg AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING} \
+                              --build-arg AZURE_CONTAINER_NAME=\${AZURE_CONTAINER_NAME} \
+                              --build-arg AZURE_BLOB_NAME=\${AZURE_BLOB_NAME} \
+                              --build-arg AZURE_STORAGE_CONNECTION_STRING="\${AZURE_STORAGE_CONNECTION_STRING}" \
                               -t ${ACR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} .
                         """
                     }
