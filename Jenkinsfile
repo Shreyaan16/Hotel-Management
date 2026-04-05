@@ -35,9 +35,21 @@ pipeline{
 
         stage('Build Docker Image'){
             steps{
-                script{
-                    echo 'Building Docker image'
-                    sh "docker build -t ${ACR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} ."
+                withCredentials([
+                    string(credentialsId: 'azure-container-name', variable: 'AZURE_CONTAINER_NAME'),
+                    string(credentialsId: 'azure-blob-name', variable: 'AZURE_BLOB_NAME'),
+                    string(credentialsId: 'azure-storage-connection-string', variable: 'AZURE_STORAGE_CONNECTION_STRING')
+                ]){
+                    script{
+                        echo 'Building Docker image'
+                        sh """
+                            docker build \
+                              --build-arg AZURE_CONTAINER_NAME=${AZURE_CONTAINER_NAME} \
+                              --build-arg AZURE_BLOB_NAME=${AZURE_BLOB_NAME} \
+                              --build-arg AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING} \
+                              -t ${ACR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} .
+                        """
+                    }
                 }
             }
         }
