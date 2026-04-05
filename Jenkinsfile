@@ -35,13 +35,14 @@ pipeline{
 
         stage('Build Docker Image'){
             steps{
-                withCredentials([file(credentialsId: 'a4364067-96de-486c-94d5-8a7df9536e42', variable: 'ENV_FILE')]){
+                withCredentials([
+                    string(credentialsId: 'azure-container-name', variable: 'AZURE_CONTAINER_NAME'),
+                    string(credentialsId: 'azure-blob-name', variable: 'AZURE_BLOB_NAME'),
+                    string(credentialsId: 'azure-storage-connection-string', variable: 'AZURE_STORAGE_CONNECTION_STRING')
+                ]){
                     script{
                         echo 'Building Docker image'
                         sh """
-                            set -a
-                            . ${ENV_FILE}
-                            set +a
                             docker build \
                               --build-arg AZURE_CONTAINER_NAME="\${AZURE_CONTAINER_NAME}" \
                               --build-arg AZURE_BLOB_NAME="\${AZURE_BLOB_NAME}" \
