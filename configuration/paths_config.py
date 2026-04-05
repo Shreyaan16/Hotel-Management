@@ -17,3 +17,6 @@ PROCESSED_TEST_DATA_PATH = os.path.join(PROCESSED_DIR,"processed_test.csv")
 ####################### MODEL TRAINING #################
 
 MODEL_OUTPUT_PATH = "artifacts/models/lgbm_model.pkl"
+LABEL_ENCODER_PATH = "artifacts/models/label_encoders.pkl"
+SKEWED_COLUMNS_PATH = "artifacts/models/skewed_columns.pkl"
+FEATURE_COLUMNS_PATH = "artifacts/models/feature_columns.pkl"

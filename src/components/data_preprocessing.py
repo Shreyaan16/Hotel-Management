@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import numpy as np
+import joblib
 from configuration.paths_config import *
 from src.utils import read_yaml,load_data
 from sklearn.ensemble import RandomForestClassifier
@@ -19,7 +20,7 @@ class DataProcessor:
             os.makedirs(self.processed_dir)
         
     
-    def preprocess_data(self,df):
+    def preprocess_data(self, df, is_train=False):
         try:
             df.drop_duplicates(inplace=True)
 
@@ -29,24 +30,30 @@ class DataProcessor:
             cat_cols = self.config["data_processing"]["categorical_columns"]
             num_cols = self.config["data_processing"]["numerical_columns"]
 
-            label_encoder = LabelEncoder()
-            mappings={}
-
+            label_encoders = {}
             for col in cat_cols:
-                df[col] = label_encoder.fit_transform(df[col])
-                mappings[col] = {label:code for label,code in zip(label_encoder.classes_ , label_encoder.transform(label_encoder.classes_))}
-
-            for col, mapping in mappings.items():
-                print(f"Encoding mapping for '{col}': {mapping}")
+                le = LabelEncoder()
+                df[col] = le.fit_transform(df[col])
+                label_encoders[col] = le
+                encoded = np.array(le.transform(le.classes_))
+                print(f"Encoding mapping for '{col}': { {label: int(code) for label, code in zip(le.classes_, encoded)} }")
 
             skew_threshold = self.config["data_processing"]["skewness_threshold"]
-            skewness = df[num_cols].apply(lambda x:x.skew())
+            skewness = df[num_cols].apply(lambda x: x.skew())
+            skewed_cols = skewness[skewness > skew_threshold].index.tolist()
 
-            for column in skewness[skewness>skew_threshold].index:
+            for column in skewed_cols:
                 df[column] = np.log1p(df[column])
 
+            if is_train:
+                os.makedirs(os.path.dirname(LABEL_ENCODER_PATH), exist_ok=True)
+                joblib.dump(label_encoders, LABEL_ENCODER_PATH)
+                joblib.dump(skewed_cols, SKEWED_COLUMNS_PATH)
+                print(f"Saved label encoders to {LABEL_ENCODER_PATH}")
+                print(f"Saved skewed columns {skewed_cols} to {SKEWED_COLUMNS_PATH}")
+
             return df
-        
+
         except Exception as e:
             print(f"Error {e}")
         
@@ -96,8 +103,8 @@ class DataProcessor:
             train_df = load_data(self.train_path)
             test_df = load_data(self.test_path)
 
-            train_df = self.preprocess_data(train_df)
-            test_df = self.preprocess_data(test_df)
+            train_df = self.preprocess_data(train_df, is_train=True)
+            test_df = self.preprocess_data(test_df, is_train=False)
 
             train_df = self.balance_data(train_df)
 

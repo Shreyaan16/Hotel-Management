@@ -98,6 +98,10 @@ class ModelTraining:
                 best_lgbm_model = self.train_lgbm(X_train,y_train)
                 metrics = self.evaluate_model(best_lgbm_model ,X_test , y_test)
                 self.save_model(best_lgbm_model)
+
+                joblib.dump(X_train.columns.tolist(), FEATURE_COLUMNS_PATH)
+                print(f"Saved feature columns to {FEATURE_COLUMNS_PATH}")
+
                 mlflow.log_artifact(self.model_output_path)
                 mlflow.log_params(best_lgbm_model.get_params())
                 mlflow.log_metrics(metrics)
