@@ -12,7 +12,7 @@ RUN apt-get update -y && \
     chmod a+r /etc/apt/keyrings/docker.gpg && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(. /etc/os-release && echo "$VERSION_CODENAME") stable" > /etc/apt/sources.list.d/docker.list && \
     apt-get update -y && \
-    apt-get install -y docker-ce docker-ce-cli containerd.io && \
+    apt-get install -y docker-ce docker-ce-cli containerd.io gosu && \
     apt-get clean
 
 # Add Jenkins user to the Docker group (create if it doesn't exist)
@@ -27,7 +27,5 @@ VOLUME /var/lib/docker
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Switch back to the Jenkins user
-USER jenkins
-
+# Stay as root so entrypoint can fix docker socket GID
 ENTRYPOINT ["/entrypoint.sh"]
