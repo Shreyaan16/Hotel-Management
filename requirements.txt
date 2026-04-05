@@ -10,4 +10,6 @@ seaborn
 imbalanced-learn
 xgboost 
 lightgbm
+mlflow
+scipy
 -e .
