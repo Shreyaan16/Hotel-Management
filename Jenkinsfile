@@ -39,10 +39,12 @@ pipeline{
                     script{
                         echo 'Building Docker image'
                         sh """
-                            export \$(grep -v '^#' ${ENV_FILE} | xargs)
+                            set -a
+                            . ${ENV_FILE}
+                            set +a
                             docker build \
-                              --build-arg AZURE_CONTAINER_NAME=\${AZURE_CONTAINER_NAME} \
-                              --build-arg AZURE_BLOB_NAME=\${AZURE_BLOB_NAME} \
+                              --build-arg AZURE_CONTAINER_NAME="\${AZURE_CONTAINER_NAME}" \
+                              --build-arg AZURE_BLOB_NAME="\${AZURE_BLOB_NAME}" \
                               --build-arg AZURE_STORAGE_CONNECTION_STRING="\${AZURE_STORAGE_CONNECTION_STRING}" \
                               -t ${ACR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} .
                         """
